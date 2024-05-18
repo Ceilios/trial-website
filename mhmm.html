@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Web Page</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #f0f0f0, #a0a0a0);
+            color: #333;
+            margin: 20px;
+            transition: background-color 2s;
+        }
+        h1, h2 {
+            color: #4CAF50;
+            text-align: center;
+        }
+        form, .calculator, .clock {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 20px auto;
+            transition: background-color 0.5s;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input[type="number"], input[type="text"], input[type="button"], button {
+            width: calc(100% - 16px);
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button, input[type="button"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover, input[type="button"]:hover {
+            background-color: #45a049;
+        }
+        .result, .clock {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 20px auto;
+        }
+        .result h2, .clock h2 {
+            color: #4CAF50;
+        }
+        .result p {
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+        .calculator input {
+            width: calc(25% - 10px);
+            margin: 5px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .calculator input[type="text"] {
+            width: calc(100% - 20px);
+            text-align: right;
+        }
+        .clock {
+            text-align: center;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Web Page</h1>
+
+    <form id="arrayForm">
+        <h2>Array Input and Display</h2>
+        <label for="numElements">Number of elements:</label>
+        <input type="number" id="numElements" name="numElements" required>
+        <div id="elementInputs"></div>
+        <button type="submit">Submit</button>
+    </form>
+
+    <div class="result" id="result"></div>
+
+    <div class="calculator">
+        <h2>Simple Calculator</h2>
+        <input type="text" id="calcDisplay" disabled>
+        <br>
+        <input type="button" value="7" onclick="appendNumber(7)">
+        <input type="button" value="8" onclick="appendNumber(8)">
+        <input type="button" value="9" onclick="appendNumber(9)">
+        <input type="button" value="/" onclick="setOperator('/')">
+        <br>
+        <input type="button" value="4" onclick="appendNumber(4)">
+        <input type="button" value="5" onclick="appendNumber(5)">
+        <input type="button" value="6" onclick="setOperator('*')">
+        <input type="button" value="*" onclick="setOperator('*')">
+        <br>
+        <input type="button" value="1" onclick="appendNumber(1)">
+        <input type="button" value="2" onclick="appendNumber(2)">
+        <input type="button" value="3" onclick="appendNumber(3)">
+        <input type="button" value="-" onclick="setOperator('-')">
+        <br>
+        <input type="button" value="0" onclick="appendNumber(0)">
+        <input type="button" value="C" onclick="clearDisplay()">
+        <input type="button" value="=" onclick="calculate()">
+        <input type="button" value="+" onclick="setOperator('+')">
+    </div>
+
+    <div class="clock" id="clock">
+        <h2>Real-time Clock</h2>
+        <div id="time"></div>
+    </div>
+
+    <script>
+        // Array Input and Display
+        document.getElementById('numElements').addEventListener('input', function() {
+            const numElements = parseInt(this.value) || 0;
+            const elementInputs = document.getElementById('elementInputs');
+            elementInputs.innerHTML = '';
+            for (let i = 0; i < numElements; i++) {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.name = 'element' + i;
+                input.placeholder = 'Element ' + (i + 1);
+                elementInputs.appendChild(input);
+            }
+            document.body.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 90%)`;
+        });
+
+        document.getElementById('arrayForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const elements = [];
+            for (const [key, value] of formData.entries()) {
+                if (key.startsWith('element')) {
+                    elements.push(value);
+                }
+            }
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = '<h2>The elements in the array are:</h2>';
+            elements.forEach((element, index) => {
+                resultDiv.innerHTML += `<p>${index + 1}. ${element}</p>`;
+            });
+            document.body.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 90%)`;
+        });
+
+        // Simple Calculator
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+
+        function appendNumber(number) {
+            currentInput += number;
+            document.getElementById('calcDisplay').value = currentInput;
+        }
+
+        function setOperator(op) {
+            if (currentInput === '') return;
+            operator = op;
+            previousInput = currentInput;
+            currentInput = '';
+            document.getElementById('calcDisplay').value = '';
+        }
+
+        function calculate() {
+            if (currentInput === '' || previousInput === '') return;
+            let result;
+            switch (operator) {
+                case '+':
+                    result = parseFloat(previousInput) + parseFloat(currentInput);
+                    break;
+                case '-':
+                    result = parseFloat(previousInput) - parseFloat(currentInput);
+                    break;
+                case '*':
+                    result = parseFloat(previousInput) * parseFloat(currentInput);
+                    break;
+                case '/':
+                    result = parseFloat(previousInput) / parseFloat(currentInput);
+                    break;
+                default:
+                    return;
+            }
+            document.getElementById('calcDisplay').value = result;
+            currentInput = result;
+            previousInput = '';
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            operator = '';
+            previousInput = '';
+            document.getElementById('calcDisplay').value = '';
+        }
+
+        // Real-time Clock
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('time').textContent = timeString;
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
+
